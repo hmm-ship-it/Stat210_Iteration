@@ -40,6 +40,7 @@ tb <-
 Run the code in the chunk. What does it do?
 
 ```{r}
+view(exams)
 exams %>% map(mean)
 ```
 
@@ -53,7 +54,8 @@ Complete the code to apply the test below to every element of the list. Return t
 `length(<input> == 10)`
 
 ```{r}
-exams %>% ______(_________________)
+exams %>% map_lgl(~length(.) == 10) #returns vector, instead of a list
+ #map_lgl(bind_rows)
 ```
 
 ## Your Turn 3
@@ -63,10 +65,15 @@ Recompute the grades by dropping the lowest score and then taking the mean of th
 `(sum(<input>) - min(<input>)) / 9`
 
 ```{r}
+exams %>% map_dfr(~sum(.)) -> aSum
+exams %>% map_dfr(~min(.)) -> aMin
+final <- ((aSum - aMin) / 9)
+head(final)
+
+#OR this is how the teacher did it... in one line
+exams %>% map_dfr(~(sum(.) - min(.))/9) -> clean_exam
 
 ```
-
-
 ## Your Turn 4
 
 Compute a final grade for each student, where the final grade is the average test score plus any `extra_credit` assigned to the student. Return the results as a double (i.e. numeric) vector.
@@ -74,8 +81,8 @@ Compute a final grade for each student, where the final grade is the average tes
 `mean(<exams>) + <extra_credit>`
 
 ```{r}
-exams %>% 
-  _________(____________, ~________________)
+exams %>% map2_dbl(extra_credit, ~mean(.x) + .y)
+map2_dbl(exams, extra_credit, ~mean(.x) + .y)
 ```
 
 
@@ -104,6 +111,8 @@ tb_predictions <-
   mutate(model = map(data, ~lm(n ~ year, data = .))) %>%
   mutate(pred = map_dbl(model, predict, tibble(year = 2020))) %>%
   mutate(pred = round(pred))
+
+view(tb_predictions)
 ```
 
 Things that we can now do:
